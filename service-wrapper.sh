@@ -30,15 +30,16 @@ quit() {
 }
 
 watch() {
+	local LAST_INDEX=$1
 	while :
 	do
 		local HEADERS=$(curl -sS -o /dev/null -D - http://$CONSUL/v1/kv/$PREFIX/?recurse&wait=$CONSUL_KV_WAIT&index=$INDEX)
-		local LOCAL_INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk {'print $2'})
+		local CURRENT_INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk {'print $2'})
 
 		# Trigger restart if Consul KV chnges detected
-		if [ "$LOCAL_INDEX" != "$INDEX" ]; then
+		if [ "$CURRENT_INDEX" != "$LAST_INDEX" ]; then
 			restart
-			break
+			LAST_INDEX=$CURRENT_INDEX
 		fi
 	done
 }
@@ -69,7 +70,7 @@ $APP &
 CHILD_PID=$!
 
 echo "$ME: Running Consul watcher"
-watch &
+watch $INDEX &
 WATCHER_PID=$!
 echo "$ME: Watcher PID $WATCHER_PID"
 
