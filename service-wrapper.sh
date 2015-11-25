@@ -33,7 +33,7 @@ watch() {
 	local LAST_INDEX=$1
 	while :
 	do
-		local HEADERS=$(curl -sS -o /dev/null -D - http://$CONSUL/v1/kv/$PREFIX/?recurse&wait=$CONSUL_KV_WAIT&index=$INDEX)
+		local HEADERS=$(curl -sS -o /dev/null -D - http://$CONSUL/v1/kv/$PREFIX/?recurse&wait=$CONSUL_KV_WAIT&index=$LAST_INDEX)
 		local CURRENT_INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk {'print $2'})
 
 		# Trigger restart if Consul KV chnges detected
