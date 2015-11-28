@@ -33,8 +33,8 @@ watch() {
 	local LAST_INDEX=$1
 	while :
 	do
-		local HEADERS=$(curl -sS -o /dev/null -D - http://$CONSUL/v1/kv/$PREFIX/?recurse&wait=$CONSUL_KV_WAIT&index=$LAST_INDEX)
-		local CURRENT_INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk {'print $2'})
+		local HEADERS=$(curl -sS -o /dev/null -D - http://$CONSUL/v1/kv/$PREFIX/?recurse\&wait=$CONSUL_KV_WAIT\&index=$LAST_INDEX)
+		local CURRENT_INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk {'print $2'} | tr -d '[[:space:]]')
 
 		# Trigger restart if Consul KV chnges detected
 		if [ "$CURRENT_INDEX" != "$LAST_INDEX" ]; then
@@ -51,7 +51,7 @@ trap 'kill -INT $CHILD_PID; quit 0' INT
 # Get environment from Consul
 RESPONSE=$(curl -sS -i http://$CONSUL/v1/kv/$PREFIX/?recurse)
 HEADERS=$(echo "$RESPONSE" | awk '{if(length($0)<2)exit;print}')
-INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk '{print $2}')
+INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk '{print $2}' | tr -d '[[:space:]]')
 BODY=$(echo "$RESPONSE" | awk '{if(body)print;if(length($0)<2)body=1}')
 ENV=$(echo "$BODY" | jq -r '.[] | [.Key, .Value] | join(" ")' \
 | sed "s|$PREFIX/||" \
