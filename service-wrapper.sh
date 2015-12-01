@@ -31,10 +31,12 @@ quit() {
 
 watch() {
 	local LAST_INDEX=$1
+	local HEADERS
+	local CURRENT_INDEX
 	while :
 	do
-		local HEADERS=$(curl -sS -o /dev/null -D - http://$CONSUL/v1/kv/$PREFIX/?recurse\&wait=$CONSUL_KV_WAIT\&index=$LAST_INDEX)
-		local CURRENT_INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk {'print $2'} | tr -d '[[:space:]]')
+		HEADERS=$(curl -sS -o /dev/null -D - http://$CONSUL/v1/kv/$PREFIX/?recurse\&wait=$CONSUL_KV_WAIT\&index=$LAST_INDEX)
+		CURRENT_INDEX=$(echo "$HEADERS" | grep -i X-Consul-Index: | awk {'print $2'} | tr -d '[[:space:]]')
 
 		# Trigger restart if Consul KV chnges detected
 		if [ "$CURRENT_INDEX" != "$LAST_INDEX" ]; then
