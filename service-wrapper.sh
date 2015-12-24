@@ -63,8 +63,7 @@ while read KEY VALUE; do
 	printf "export $KEY=%s\n" "$(echo "$VALUE" | base64 -d)"
 done)
 
-echo "$ME: Adding new variables to the environment:"
-echo "$ENV"
+echo "$ME: Adding new variables to the environment"
 eval "$ENV"
 
 echo "$ME: Running $APP"
